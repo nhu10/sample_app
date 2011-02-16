@@ -18,7 +18,21 @@ describe UsersController do
       get 'new'
       response.should have_selector("title", :content => "Sign up")
     end
-
+    
+    it "should have a name field" do
+      get :new
+      response.should have_selector("input[name='user[name]'][type='text']")
+    end
+    
+    it "should have a password field" do
+      get :new
+      response.should have_selector("input[name='user[password]'][type='password']")
+    end
+    
+  end
+  
+  describe "GET 'show'" do
+    
     it "should be successful" do
       get :show, :id => @user
       response.should be_success
@@ -28,10 +42,6 @@ describe UsersController do
       get :show, :id => @user
       assigns(:user).should == @user
     end
-    
-  end
-  
-  describe "GET 'show'" do
     
     it "should have the right title" do
       get :show, :id => @user
