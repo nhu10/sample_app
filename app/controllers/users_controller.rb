@@ -3,6 +3,7 @@ class UsersController < ApplicationController
   before_filter :authenticate, :only => [:index, :edit, :update, :destroy]
   before_filter :correct_user, :only => [:edit, :update]
   before_filter :admin_user, :only => :destroy
+  before_filter :no_new_create, :only => [:new, :create]
   
   
   def index
@@ -12,6 +13,7 @@ class UsersController < ApplicationController
   
   def show
     @user = User.find(params[:id])
+    @microposts = @user.microposts.paginate(:page => params[:page])
     @title = @user.name
   end
 
@@ -51,16 +53,15 @@ class UsersController < ApplicationController
   end
   
   def destroy
-    User.find(params[:id]).destroy
-    flash[:success] = "User destroyed."
+    user = User.find(params[:id])
+    if (user != current_user)
+      user.destroy
+      flash[:success] = "User destroyed."
+    end
     redirect_to users_path
   end
   
   private
-  
-    def authenticate
-      deny_access unless signed_in?
-    end
   
     def correct_user
       @user = User.find(params[:id])
@@ -71,5 +72,7 @@ class UsersController < ApplicationController
       redirect_to(root_path) unless current_user.admin?
     end
   
-  
+    def no_new_create
+      redirect_to(root_path) if signed_in?
+    end
 end
